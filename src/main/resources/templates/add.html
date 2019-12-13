@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script language="JavaScript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <title>添加账单</title>
+
+</head>
+<style>
+    .content{
+        padding-top: 38px;
+        width: 95%;
+        margin: auto;
+    }
+    .my_table{
+        border: 0px solid #ccc;
+        width: 100%;
+        background: #d8cac4;
+    }
+    .my_table thead tr{
+        height: 40px;
+    }
+    .my_table tbody tr td{
+        text-align: center;
+       border: 0px solid #fff;
+    }
+    .label{
+        text-align: right!important;
+    }
+    .input{
+        text-align: left!important;
+    }
+    .input input{
+        width: 34%;
+        height: 34px;
+        border-radius: 8px;
+        border:1px solid #ccc;
+    }
+    .btn{
+        width: 100px;
+        height:45px;
+    }
+
+</style>
+<body>
+<div class="content">
+    <table class="my_table">
+        <tbody>
+        <tr>
+            <td class="label">商品名称：</td>
+            <td class="input"><input type="text"></td>
+        </tr>
+        <tr>
+            <td class="label">售卖单价：</td>
+            <td class="input"><input type="text"></td>
+        </tr>
+        <tr>
+            <td class="label">成交单价：</td>
+            <td class="input"><input type="text"></td>
+        </tr>
+        <tr>
+            <td class="label">数量：</td>
+            <td class="input"><input type="text"></td>
+        </tr>
+        <tr>
+            <td class="label">交易总价：</td>
+            <td class="input"><input type="text"></td>
+        </tr>
+        <tr>
+            <td class="label">成本总价：</td>
+            <td class="input"><input type="text"></td>
+        </tr>
+        <tr>
+            <td class="label">交易利润：</td>
+            <td class="input"><input type="text"></td>
+        </tr>
+        <tr>
+            <td class="label"></td>
+            <td class="input"><button class="btn">提交</button></td>
+
+        </tr>
+        </tbody>
+    </table>
+    <div><a href="/index" target="_parent">返回列表页</a></div>
+</div>
+
+</body>
+<script type="text/javascript">
+
+    $(function(){
+        $(".btn").bind(add);
+    })
+    add
+</script>
+</html>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.taobao.znn.dao.OrderDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.taobao.znn.bean.OrderDO" id="orderMap">
+                    <result property="orderId" column="order_id"/>
+                    <result property="id" column="id"/>
+                    <result property="name" column="name"/>
+                    <result property="danJia" column="dan_jia"/>
+                    <result property="count" column="count"/>
+                    <result property="danJiaAll" column="dan_jia_all"/>
+                    <result property="cbDanJia" column="cb_dan_jia"/>
+                    <result property="cbDanJiaAll" column="cb_dan_jia_all"/>
+                    <result property="product" column="product"/>
+                    <result property="date" column="date"/>
+                    <result property="remark" column="remark"/>
+            </resultMap>
+
+    <sql id="base_column_list">
+                order_id,                id,                name,                dan_jia,                count,                dan_jia_all,                cb_dan_jia,                cb_dan_jia_all,                product,                date,                remark        
+    </sql>
+
+    <sql id="base_where">
+        <trim prefix="where" prefixOverrides="and|or">
+                            <if test="orderId != null">AND order_id = #{orderId}</if>
+                            <if test="id != null">AND id = #{id}</if>
+                            <if test="name != null">AND name = #{name}</if>
+                            <if test="danJia != null">AND dan_jia = #{danJia}</if>
+                            <if test="count != null">AND count = #{count}</if>
+                            <if test="danJiaAll != null">AND dan_jia_all = #{danJiaAll}</if>
+                            <if test="cbDanJia != null">AND cb_dan_jia = #{cbDanJia}</if>
+                            <if test="cbDanJiaAll != null">AND cb_dan_jia_all = #{cbDanJiaAll}</if>
+                            <if test="product != null">AND product = #{product}</if>
+                            <if test="date != null">AND date = #{date}</if>
+                            <if test="remark != null">AND remark = #{remark}</if>
+                    </trim>
+    </sql>
+
+
+    <select id="queryObject" resultMap="orderMap">
+        select
+        <include refid="base_column_list"/>
+        from t_order where id = #{value}
+    </select>
+
+    <select id="queryList" resultMap="orderMap"
+            parameterType="com.taobao.znn.bean.OrderQueryDO">
+        select
+        <include refid="base_column_list"/>
+        from t_order
+        <include refid="base_where"/>
+        <if test="firstRow != null">
+            limit #{firstRow},#{pageSize}
+        </if>
+    </select>
+
+    <select id="queryCount" resultType="int" parameterType="com.taobao.znn.bean.OrderQueryDO">
+        select count(*) from t_order
+        <include refid="base_where"/>
+    </select>
+
+    <insert id="save" parameterType="com.taobao.znn.bean.OrderDO" useGeneratedKeys="true" keyProperty="id">
+        insert into t_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                                                <if test="orderId != null">order_id,</if>
+                                                                                            <if test="name != null">name,</if>
+                                                                <if test="danJia != null">dan_jia,</if>
+                                                                <if test="count != null">count,</if>
+                                                                <if test="danJiaAll != null">dan_jia_all,</if>
+                                                                <if test="cbDanJia != null">cb_dan_jia,</if>
+                                                                <if test="cbDanJiaAll != null">cb_dan_jia_all,</if>
+                                                                <if test="product != null">product,</if>
+                                                                <if test="date != null">date,</if>
+                                                                <if test="remark != null">remark,</if>
+                                    </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                                                <if test="orderId != null">#{orderId},</if>
+                                                                                            <if test="name != null">#{name},</if>
+                                                                <if test="danJia != null">#{danJia},</if>
+                                                                <if test="count != null">#{count},</if>
+                                                                <if test="danJiaAll != null">#{danJiaAll},</if>
+                                                                <if test="cbDanJia != null">#{cbDanJia},</if>
+                                                                <if test="cbDanJiaAll != null">#{cbDanJiaAll},</if>
+                                                                <if test="product != null">#{product},</if>
+                                                                <if test="date != null">#{date},</if>
+                                                                <if test="remark != null">#{remark},</if>
+                                    </trim>
+    </insert>
+    <insert id="batchSave" parameterType="com.taobao.znn.bean.OrderDO" useGeneratedKeys="true" keyProperty="id">
+        insert into t_order
+        (
+                                    order_id ,                                                                    name ,                                                dan_jia ,                                                count ,                                                dan_jia_all ,                                                cb_dan_jia ,                                                cb_dan_jia_all ,                                                product ,                                                date ,                                                remark                             )
+        values
+        <foreach collection="list" index="index" separator="," item="item">
+            (
+                                                #{item.orderId},                                                                                            #{item.name},                                                                #{item.danJia},                                                                #{item.count},                                                                #{item.danJiaAll},                                                                #{item.cbDanJia},                                                                #{item.cbDanJiaAll},                                                                #{item.product},                                                                #{item.date},                                                                #{item.remark}                                        )
+        </foreach>
+    </insert>
+    <update id="update" parameterType="com.taobao.znn.bean.OrderDO">
+        update t_order
+        <set>
+                                                <if test="orderId != null">
+                        `order_id` = #{orderId},
+                    </if>
+                                                                                            <if test="name != null">
+                        `name` = #{name},
+                    </if>
+                                                                <if test="danJia != null">
+                        `dan_jia` = #{danJia},
+                    </if>
+                                                                <if test="count != null">
+                        `count` = #{count},
+                    </if>
+                                                                <if test="danJiaAll != null">
+                        `dan_jia_all` = #{danJiaAll},
+                    </if>
+                                                                <if test="cbDanJia != null">
+                        `cb_dan_jia` = #{cbDanJia},
+                    </if>
+                                                                <if test="cbDanJiaAll != null">
+                        `cb_dan_jia_all` = #{cbDanJiaAll},
+                    </if>
+                                                                <if test="product != null">
+                        `product` = #{product},
+                    </if>
+                                                                <if test="date != null">
+                        `date` = #{date},
+                    </if>
+                                                                <if test="remark != null">
+                        `remark` = #{remark},
+                    </if>
+                                    </set>
+        where id = #{id}
+    </update>
+
+    <delete id="remove">
+		delete from t_order where id = #{id}
+	</delete>
+
+</mapper>
