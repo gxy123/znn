@@ -25,19 +25,20 @@ public class SendEmailUtils {
 
 
     private static Map<String, String> hostMap = new HashMap<String, String>();
-    private static List<FormVo> formVoList =new ArrayList<>();
+    private static List<FromVo> formVoList =new ArrayList<>();
 
 
     static {
 
         //初始化发送邮箱
-        formVoList.add(new FormVo("xiaoweilvzheng1@163.com","xiaoweilvzheng1@163.com","xiaoweilvzheng1"));
-        formVoList.add(new FormVo("1536734676@QQ.COM","1536734676@QQ.COM","gblvkgaaouoahhbe"));
-        formVoList.add(new FormVo("xiaoweilvzheng6@126.com","xiaoweilvzheng6@126.com","xiaoweilvzheng1"));
-        formVoList.add(new FormVo("xiaoweilvzheng1@sina.com","xiaoweilvzheng1@sina.com","c4ff5d65e138903e"));
+        formVoList.add(new FromVo("xiaoweilvzheng1@163.com","xiaoweilvzheng1@163.com","xiaoweilvzheng1"));
+        formVoList.add(new FromVo("1536734676@QQ.COM","1536734676@QQ.COM","gblvkgaaouoahhbe"));
+        formVoList.add(new FromVo("xiaoweilvzheng6@126.com","xiaoweilvzheng6@126.com","xiaoweilvzheng1"));
+        formVoList.add(new FromVo("xiaoweilvzheng1@sina.com","xiaoweilvzheng1@sina.com","c4ff5d65e138903e"));
         // 126
         hostMap.put("smtp.126", "smtp.126.com");
         hostMap.put("smtp.163", "smtp.163.com");
+        hostMap.put("smtp.qq", "smtp.qq.com");
 
 
     }
@@ -72,11 +73,11 @@ public class SendEmailUtils {
 
 
     /**
-     * @param toMailAddr   接收方
+     * @param tos   接收方
      * @param subject      邮件主题
      * @param map          替换动态名称
      */
-    public static void sendFtlMail(FormVo vo, String toMailAddr, String subject, Map<String, Object> map) {
+    public static void sendFtlMail(FromVo vo, String tos, String subject, Map<String, Object> map) {
         Template template;
         Configuration freeMarkerConfig;
         HtmlEmail hemail = new HtmlEmail();
@@ -84,7 +85,7 @@ public class SendEmailUtils {
             hemail.setHostName(getHost(vo.from));
             hemail.setSmtpPort(getSmtpPort(vo.from));
             hemail.setCharset(charSet);
-            hemail.addTo(toMailAddr);
+            hemail.addTo(tos);//批量放松
             hemail.setFrom(vo.from, fromName);
             hemail.setAuthentication(vo.username, vo.password);
             hemail.setSubject(subject);
@@ -97,8 +98,8 @@ public class SendEmailUtils {
                     .processTemplateIntoString(template, map);
             System.out.println(htmlText);
             hemail.setMsg(htmlText);
-            hemail.send();
-            System.out.println("email send true!");
+            String msgId = hemail.send();
+            System.out.println("email send true!msgId="+msgId);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("email send error!");
@@ -106,8 +107,8 @@ public class SendEmailUtils {
     }
     @Data
     static
-    class FormVo{
-        public FormVo(String from, String username, String password) {
+    class FromVo{
+        public FromVo(String from, String username, String password) {
             this.from = from;
             this.username = username;
             this.password = password;
@@ -120,6 +121,6 @@ public class SendEmailUtils {
 
     public static void main(String[] args) {
         SendEmailUtils s = new SendEmailUtils();
-        s.sendFtlMail(new FormVo("","",""),"1006351406@qq.com", "主题", null);
+        s.sendFtlMail(new FromVo("xiaoweilvzheng1@163.com","xiaoweilvzheng1@163.com","xiaoweilvzheng1"),"xiaoweilvzheng1@sohu.com", "主题", null);
     }
 }

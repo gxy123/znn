@@ -35,4 +35,22 @@ public class FromListUtils {
        }
        return  list;
    }
+
+    /**
+     * 获取接收邮件的地址
+     * @param fileInputStream
+     * @return
+     * @throws IOException
+     */
+    public  List<String> getToList( FileInputStream fileInputStream) throws IOException {
+        List<String> list =new ArrayList<>();
+        Workbook workbook = new HSSFWorkbook(fileInputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            String to = row.getCell(0).getStringCellValue();
+            list.add(to);
+        }
+        return  list;
+    }
 }
