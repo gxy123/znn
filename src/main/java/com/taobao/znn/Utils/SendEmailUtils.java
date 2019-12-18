@@ -5,10 +5,9 @@ import freemarker.template.Template;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.thymeleaf.util.DateUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,24 +24,24 @@ import java.util.regex.Pattern;
 public class SendEmailUtils {
 
     public static final String charSet = "utf-8";
-    public static final String fromName = "测试公司";
+    public static final String fromName = "hhda";
+    public static Integer success = 0;
+    public static Integer fail = 0;
+    public static String failEmail ="";
+    public static String failTos ="";
 
 
     private static Map<String, String> hostMap = new HashMap<String, String>();
-    private static List<FromVo> formVoList = new ArrayList<>();
 
 
     static {
 
-        //初始化发送邮箱
-        formVoList.add(new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 30));
-        formVoList.add(new FromVo("1536734676@QQ.COM", "1536734676@QQ.COM", "gblvkgaaouoahhbe", 30));
-        formVoList.add(new FromVo("xiaoweilvzheng6@126.com", "xiaoweilvzheng6@126.com", "xiaoweilvzheng1", 30));
-        formVoList.add(new FromVo("xiaoweilvzheng1@sina.com", "xiaoweilvzheng1@sina.com", "c4ff5d65e138903e", 30));
         // 126
         hostMap.put("smtp.126", "smtp.126.com");
         hostMap.put("smtp.163", "smtp.163.com");
         hostMap.put("smtp.qq", "smtp.qq.com");
+        hostMap.put("smtp.sina", "smtp.sina.com");
+        hostMap.put("smtp.tom", "smtp.tom.com");
 
 
     }
@@ -95,7 +94,7 @@ public class SendEmailUtils {
             // 模板内容转换为string
             String htmlText = FreeMarkerTemplateUtils
                     .processTemplateIntoString(template, map);
-            System.out.println(htmlText);
+            //System.out.println(htmlText);
             return htmlText;
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,30 +120,87 @@ public class SendEmailUtils {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-
+        StringBuffer log = new StringBuffer();
+        Date start = new Date();
         String htmlText;
-        htmlText = getHtml("", "", null);
+        htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add.html", null);
         FromListUtils fromListUtils = new FromListUtils();
-        FileInputStream fileInputStream0 = new FileInputStream(new File(""));
+        FileInputStream fileInputStream0 = new FileInputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\froms.xlsx"));
         List<FromVo> fromList = fromListUtils.getList(fileInputStream0);
-        FileInputStream fileInputStream1 = new FileInputStream(new File(""));
+        FileInputStream fileInputStream1 = new FileInputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\tos.xlsx"));
         List<String> toList = fromListUtils.getToList(fileInputStream1);
+        Map<Integer, Integer> maxMap = new HashMap<>();
         int size = fromList.size();
         int fromIndex = size;
         ExecutorService executorService = Executors.newFixedThreadPool(size);//创建同发件箱数量同等数量任务
         for (int i = 0; i < toList.size(); i++) {
-            if (i / size == 0) {
+            if (i != 0 && i % size == 0 || fromIndex == 0) {
                 fromIndex = size;
-                System.out.println("等待一会再发...");
+                System.out.println("每个邮箱已经发了一遍...等待1分钟后......");
                 Thread.sleep(60000);
             }
             String s = toList.get(i);
-            fromIndex--;
-            FromVo fromVo = fromList.get(fromIndex);
+            System.out.println(fromIndex);
+            FromVo fromVo;
+            while (true) {
+                fromVo = fromList.get(fromIndex - 1);
+                if (maxMap.get(fromIndex) != null) {
+                    Integer count = maxMap.get(fromIndex);
+                    if (fromVo.getMaxCount() <= count) {
+                        fromIndex--;
 
-            executorService.execute(new SendEmailTask(s, fromVo, "主题", htmlText));
+                    } else {
+                        fromIndex--;
+                        break;
+                    }
+                } else {
+                    fromIndex--;
+                    break;
+                }
+            }
+
+            executorService.execute(new SendEmailTask(s, fromVo, "天天好看", htmlText));
         }
-        SendEmailUtils s = new SendEmailUtils();
+        executorService.shutdown();
+        while (true) {
+            if (executorService.isTerminated()) {
+                System.out.println("线程执行全部执行完毕!");
+                break;
+            }
+            Thread.sleep(2000);
+
+        }
+
+        File file = new File("C:\\Users\\guoxiaoyu\\Desktop\\log.txt");
+        PrintStream ps = new PrintStream(new FileOutputStream(file));
+        FileOutputStream fos = new FileOutputStream(file);
+        OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+        Date end = new Date();
+        log.append("开始时间：" + DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
+        log.append("\n");
+        log.append("结束时间：" + DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
+        log.append("\n");
+        log.append("成功条数：" + success);
+        log.append("\n");
+        log.append("失败条数：" + fail);
+        log.append("\n");
+        log.append("发送总量：" + toList.size());
+        log.append("\n");
+        log.append("不能用的邮箱："+failEmail);
+        log.append("\n");
+        log.append("接收失败的客户邮箱："+failTos);
+        System.out.println("开始时间：" + DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
+        System.out.println("结束时间：" + DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
+        System.out.println("成功条数：" + success);
+        System.out.println("失败条数：" + fail);
+        System.out.println("发送总量：" + toList.size());
+        ps.println(new String(log.toString().getBytes(), "utf-8"));
+        osw.write(log.toString());
+        osw.flush();
+        osw.close();
+
 
     }
+
+
 }

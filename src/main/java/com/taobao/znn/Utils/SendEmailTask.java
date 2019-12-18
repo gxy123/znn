@@ -8,6 +8,9 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import java.io.File;
 import java.util.Locale;
 
+import static com.taobao.znn.Utils.SendEmailUtils.failEmail;
+import static com.taobao.znn.Utils.SendEmailUtils.failTos;
+
 /**
  * @ClassName SendEmailTask
  * @Author guoxiaoyu
@@ -37,13 +40,21 @@ public class SendEmailTask implements Runnable {
             hemail.setFrom(fromVo.from, SendEmailUtils.fromName);
             hemail.setAuthentication(fromVo.username, fromVo.password);
             hemail.setSubject(subject);
-            System.out.println(htmlText);
+
             hemail.setMsg(htmlText);
+            System.out.println(fromVo.getFrom() + "发送中！");
             String msgId = hemail.send();
-            System.out.println("email send true!msgId="+msgId);
+            SendEmailUtils.success = SendEmailUtils.success + 1;
+            System.out.println("email send true!msgId=" + msgId);
+            System.out.println(fromVo.getFrom() + "发送成功！");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("email send error!");
+            System.out.println(fromVo.getFrom() + "发送失败！");
+            failTos = failTos + "\n" + fromVo.getFrom();
+            failEmail = failEmail + "\n" + fromVo.getFrom();
+            SendEmailUtils.fail = SendEmailUtils.fail + 1;
         }
+
+
     }
 }
