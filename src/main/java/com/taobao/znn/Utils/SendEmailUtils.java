@@ -3,12 +3,15 @@ package com.taobao.znn.Utils;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.Data;
-import org.apache.commons.mail.HtmlEmail;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,23 +21,24 @@ import java.util.regex.Pattern;
  * @Date 2019/12/1610:08
  **/
 @Component
+@Data
 public class SendEmailUtils {
 
-    private static final String charSet = "utf-8";
-    private static final String fromName = "测试公司";
+    public static final String charSet = "utf-8";
+    public static final String fromName = "测试公司";
 
 
     private static Map<String, String> hostMap = new HashMap<String, String>();
-    private static List<FromVo> formVoList =new ArrayList<>();
+    private static List<FromVo> formVoList = new ArrayList<>();
 
 
     static {
 
         //初始化发送邮箱
-        formVoList.add(new FromVo("xiaoweilvzheng1@163.com","xiaoweilvzheng1@163.com","xiaoweilvzheng1"));
-        formVoList.add(new FromVo("1536734676@QQ.COM","1536734676@QQ.COM","gblvkgaaouoahhbe"));
-        formVoList.add(new FromVo("xiaoweilvzheng6@126.com","xiaoweilvzheng6@126.com","xiaoweilvzheng1"));
-        formVoList.add(new FromVo("xiaoweilvzheng1@sina.com","xiaoweilvzheng1@sina.com","c4ff5d65e138903e"));
+        formVoList.add(new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 30));
+        formVoList.add(new FromVo("1536734676@QQ.COM", "1536734676@QQ.COM", "gblvkgaaouoahhbe", 30));
+        formVoList.add(new FromVo("xiaoweilvzheng6@126.com", "xiaoweilvzheng6@126.com", "xiaoweilvzheng1", 30));
+        formVoList.add(new FromVo("xiaoweilvzheng1@sina.com", "xiaoweilvzheng1@sina.com", "c4ff5d65e138903e", 30));
         // 126
         hostMap.put("smtp.126", "smtp.126.com");
         hostMap.put("smtp.163", "smtp.163.com");
@@ -73,54 +77,74 @@ public class SendEmailUtils {
 
 
     /**
-     * @param tos   接收方
-     * @param subject      邮件主题
-     * @param map          替换动态名称
+     * @param path
+     * @param name
+     * @param map
+     * @return
      */
-    public static void sendFtlMail(FromVo vo, String tos, String subject, Map<String, Object> map) {
+    public static String getHtml(String path, String name, Map<String, Object> map) {
         Template template;
         Configuration freeMarkerConfig;
-        HtmlEmail hemail = new HtmlEmail();
+
         try {
-            hemail.setHostName(getHost(vo.from));
-            hemail.setSmtpPort(getSmtpPort(vo.from));
-            hemail.setCharset(charSet);
-            hemail.addTo(tos);//批量放松
-            hemail.setFrom(vo.from, fromName);
-            hemail.setAuthentication(vo.username, vo.password);
-            hemail.setSubject(subject);
+
             freeMarkerConfig = new Configuration();
-            freeMarkerConfig.setDirectoryForTemplateLoading(new File("C:\\Users\\guoxiaoyu\\Desktop"));
+            freeMarkerConfig.setDirectoryForTemplateLoading(new File(path));
             // 获取模板
-            template = freeMarkerConfig.getTemplate("index.html", new Locale("Zh_cn"));
+            template = freeMarkerConfig.getTemplate(name, new Locale("Zh_cn"));
             // 模板内容转换为string
             String htmlText = FreeMarkerTemplateUtils
                     .processTemplateIntoString(template, map);
             System.out.println(htmlText);
-            hemail.setMsg(htmlText);
-            String msgId = hemail.send();
-            System.out.println("email send true!msgId="+msgId);
+            return htmlText;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("email send error!");
         }
+        return "";
     }
+
     @Data
     static
-    class FromVo{
-        public FromVo(String from, String username, String password) {
+    class FromVo {
+        public FromVo(String from, String username, String password, Integer maxCount) {
             this.from = from;
             this.username = username;
             this.password = password;
+            this.maxCount = maxCount;
         }
 
         String from;
-          String username;//邮箱账号
-          String password;//授权码
+        String username;//邮箱账号
+        String password;//授权码
+        Integer maxCount;//每天最大发送条数
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        String htmlText;
+        htmlText = getHtml("", "", null);
+        FromListUtils fromListUtils = new FromListUtils();
+        FileInputStream fileInputStream0 = new FileInputStream(new File(""));
+        List<FromVo> fromList = fromListUtils.getList(fileInputStream0);
+        FileInputStream fileInputStream1 = new FileInputStream(new File(""));
+        List<String> toList = fromListUtils.getToList(fileInputStream1);
+        int size = fromList.size();
+        int fromIndex = size;
+        ExecutorService executorService = Executors.newFixedThreadPool(size);//创建同发件箱数量同等数量任务
+        for (int i = 0; i < toList.size(); i++) {
+            if (i / size == 0) {
+                fromIndex = size;
+                System.out.println("等待一会再发...");
+                Thread.sleep(60000);
+            }
+            String s = toList.get(i);
+            fromIndex--;
+            FromVo fromVo = fromList.get(fromIndex);
+
+            executorService.execute(new SendEmailTask(s, fromVo, "主题", htmlText));
+        }
         SendEmailUtils s = new SendEmailUtils();
-        s.sendFtlMail(new FromVo("xiaoweilvzheng1@163.com","xiaoweilvzheng1@163.com","xiaoweilvzheng1"),"xiaoweilvzheng1@sohu.com", "主题", null);
+
     }
 }

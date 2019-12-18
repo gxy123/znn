@@ -31,7 +31,8 @@ public class FromListUtils {
            Row row = sheet.getRow(i);
            String name = row.getCell(0).getStringCellValue();
            String pass = row.getCell(2).getStringCellValue();
-            list.add(new SendEmailUtils.FromVo(name,name,pass));
+           Integer count = Integer.valueOf(row.getCell(3).getStringCellValue());
+            list.add(new SendEmailUtils.FromVo(name,name,pass,count));
        }
        return  list;
    }
