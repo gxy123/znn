@@ -43,9 +43,8 @@ public class SendEmailTask implements Runnable {
 
             hemail.setMsg(htmlText);
             System.out.println(fromVo.getFrom() + "发送中！");
-            String msgId = hemail.send();
+            hemail.send();
             SendEmailUtils.success = SendEmailUtils.success + 1;
-            System.out.println("email send true!msgId=" + msgId);
             System.out.println(fromVo.getFrom() + "发送成功！");
         } catch (Exception e) {
             e.printStackTrace();

@@ -25,10 +25,10 @@ public class SendEmailUtils {
 
     public static final String charSet = "utf-8";
     public static final String fromName = "hhda";
-    public static Integer success = 0;
-    public static Integer fail = 0;
-    public static String failEmail ="";
-    public static String failTos ="";
+    public static volatile Integer success = 0;
+    public static volatile Integer fail = 0;
+    public static volatile String failEmail ="";
+    public static volatile String failTos ="";
 
 
     private static Map<String, String> hostMap = new HashMap<String, String>();
