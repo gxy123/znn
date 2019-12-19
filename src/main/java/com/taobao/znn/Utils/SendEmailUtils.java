@@ -121,7 +121,7 @@ public class SendEmailUtils {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        //new SendEmailTask("1006351406@qq.com", new FromVo("xiaoweilvzheng8@126.com", "xiaoweilvzheng8@126.com", "xiaoweilvzheng1", 21), "天天好看", "sdfdsf").run();
+        //new SendEmailTask("1006351406@qq.com", new FromVo("wendeyan3670036@163.com", "wendeyan3670036@163.com", "lb4nhckv", 21), "天天好看", "sdfdsf").run();
 
         duTask();
 
@@ -149,9 +149,9 @@ public class SendEmailUtils {
                 Thread.sleep(60000);
             }
             String s = toList.get(i);
-            System.out.println(fromIndex);
+           // FromVo fromVo =new FromVo("xiaoweilvzheng70@tom.com", "xiaoweilvzheng70@tom.com", "xiaowei2019", 100);
             FromVo fromVo;
-            while (true) {
+           while (true) {
                 fromVo = fromList.get(fromIndex - 1);
                 if (maxMap.get(fromIndex) != null) {
                     Integer count = maxMap.get(fromIndex);
@@ -170,7 +170,7 @@ public class SendEmailUtils {
                 }
             }
 
-            executorService.execute(new SendEmailTask(s, fromVo, "天天好看" + i, htmlText));
+            executorService.execute(new SendEmailTask(s, fromVo, "主题" + i, htmlText));
         }
         executorService.shutdown();
         while (true) {
@@ -181,13 +181,13 @@ public class SendEmailUtils {
             Thread.sleep(2000);
 
         }
-        String textName = System.currentTimeMillis() + "";
-        File file = new File("C:\\Users\\guoxiaoyu\\Desktop\\" + textName + ".txt");
-        PrintStream ps = new PrintStream(new FileOutputStream(file));
+       // String textName = System.currentTimeMillis() + "";
+        //File file = new File("C:\\Users\\guoxiaoyu\\Desktop\\" + textName + ".txt");
+     /*   PrintStream ps = new PrintStream(new FileOutputStream(file));
         FileOutputStream fos = new FileOutputStream(file);
-        OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
+        OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");*/
         Date end = new Date();
-        log.append("开始时间：" + DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
+     /*   log.append("开始时间：" + DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
         log.append("\n");
         log.append("结束时间：" + DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
         log.append("\n");
@@ -201,9 +201,9 @@ public class SendEmailUtils {
         log.append("\n");
         log.append("能用的邮箱：" + successEmail);
         log.append("\n");
-        log.append("接收失败的客户邮箱：" + failTos);
+        log.append("接收失败的客户邮箱：" + failTos);*/
         fromListUtils.outFileLog(DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), toList.size(), success, failEmail, successEmail, failTos);
-
+        System.out.println(success);
     }
 
 

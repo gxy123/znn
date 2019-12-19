@@ -2,13 +2,12 @@ package com.taobao.znn.Utils;
 
 import org.apache.commons.mail.HtmlEmail;
 
+import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
-import static com.taobao.znn.Utils.SendEmailUtils.failEmail;
-import static com.taobao.znn.Utils.SendEmailUtils.failTos;
-import static com.taobao.znn.Utils.SendEmailUtils.successEmail;
+import static com.taobao.znn.Utils.SendEmailUtils.*;
 
 /**
  * @ClassName SendEmailTask
@@ -29,8 +28,8 @@ public class SendEmailTask implements Runnable {
     }
 
     @Override
-    public synchronized void run() {
-        HtmlEmail hemail = new HtmlEmail();
+    public  void run() {
+       HtmlEmail hemail = new HtmlEmail();
 
         try {
             hemail.setHostName(SendEmailUtils.getHost(fromVo.from));
@@ -50,7 +49,7 @@ public class SendEmailTask implements Runnable {
 
             System.out.println(fromVo.getFrom() + "发送成功！");
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
 
 
             System.out.println(fromVo.getFrom() + "发送失败！");
@@ -59,6 +58,13 @@ public class SendEmailTask implements Runnable {
             SendEmailUtils.fail = SendEmailUtils.fail + 1;
 
         }
+        try {
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
+      /*  success++;
+        System.out.println(subject);*/
     }
 }
