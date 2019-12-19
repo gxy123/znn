@@ -1,15 +1,14 @@
 package com.taobao.znn.Utils;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
 import org.apache.commons.mail.HtmlEmail;
-import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
-import java.io.File;
-import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
 
 import static com.taobao.znn.Utils.SendEmailUtils.failEmail;
 import static com.taobao.znn.Utils.SendEmailUtils.failTos;
+import static com.taobao.znn.Utils.SendEmailUtils.successEmail;
 
 /**
  * @ClassName SendEmailTask
@@ -30,8 +29,9 @@ public class SendEmailTask implements Runnable {
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         HtmlEmail hemail = new HtmlEmail();
+
         try {
             hemail.setHostName(SendEmailUtils.getHost(fromVo.from));
             hemail.setSmtpPort(SendEmailUtils.getSmtpPort(fromVo.from));
@@ -44,16 +44,21 @@ public class SendEmailTask implements Runnable {
             hemail.setMsg(htmlText);
             System.out.println(fromVo.getFrom() + "发送中！");
             hemail.send();
+
             SendEmailUtils.success = SendEmailUtils.success + 1;
+            successEmail.add(fromVo);
+
             System.out.println(fromVo.getFrom() + "发送成功！");
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(fromVo.getFrom() + "发送失败！");
-            failTos = failTos + "\n" + fromVo.getFrom();
-            failEmail = failEmail + "\n" + fromVo.getFrom();
-            SendEmailUtils.fail = SendEmailUtils.fail + 1;
-        }
 
+
+            System.out.println(fromVo.getFrom() + "发送失败！");
+            failTos.add(to);
+            failEmail.add(fromVo.getFrom());
+            SendEmailUtils.fail = SendEmailUtils.fail + 1;
+
+        }
 
     }
 }

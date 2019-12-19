@@ -25,10 +25,11 @@ public class SendEmailUtils {
 
     public static final String charSet = "utf-8";
     public static final String fromName = "hhda";
-    public static volatile Integer success = 0;
-    public static volatile Integer fail = 0;
-    public static volatile String failEmail ="";
-    public static volatile String failTos ="";
+    public static Integer success = 0;
+    public static Integer fail = 0;
+    public static List<String> failEmail = new LinkedList<>();//发送邮箱异常
+    public static Set<FromVo> successEmail = new HashSet<>();//发送邮箱正常的邮箱
+    public static List<String> failTos = new LinkedList<>();//接收失败的邮箱
 
 
     private static Map<String, String> hostMap = new HashMap<String, String>();
@@ -120,6 +121,14 @@ public class SendEmailUtils {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        //new SendEmailTask("1006351406@qq.com", new FromVo("xiaoweilvzheng8@126.com", "xiaoweilvzheng8@126.com", "xiaoweilvzheng1", 21), "天天好看", "sdfdsf").run();
+
+        duTask();
+
+
+    }
+
+    public static void duTask() throws IOException, InterruptedException {
         StringBuffer log = new StringBuffer();
         Date start = new Date();
         String htmlText;
@@ -132,7 +141,7 @@ public class SendEmailUtils {
         Map<Integer, Integer> maxMap = new HashMap<>();
         int size = fromList.size();
         int fromIndex = size;
-        ExecutorService executorService = Executors.newFixedThreadPool(size);//创建同发件箱数量同等数量任务
+        ExecutorService executorService = Executors.newSingleThreadExecutor();//创建同发件箱数量同等数量任务
         for (int i = 0; i < toList.size(); i++) {
             if (i != 0 && i % size == 0 || fromIndex == 0) {
                 fromIndex = size;
@@ -150,16 +159,18 @@ public class SendEmailUtils {
                         fromIndex--;
 
                     } else {
+                        maxMap.put(fromIndex, count + 1);
                         fromIndex--;
                         break;
                     }
                 } else {
+                    maxMap.put(fromIndex, 1);
                     fromIndex--;
                     break;
                 }
             }
 
-            executorService.execute(new SendEmailTask(s, fromVo, "天天好看", htmlText));
+            executorService.execute(new SendEmailTask(s, fromVo, "天天好看" + i, htmlText));
         }
         executorService.shutdown();
         while (true) {
@@ -170,8 +181,8 @@ public class SendEmailUtils {
             Thread.sleep(2000);
 
         }
-
-        File file = new File("C:\\Users\\guoxiaoyu\\Desktop\\log.txt");
+        String textName = System.currentTimeMillis() + "";
+        File file = new File("C:\\Users\\guoxiaoyu\\Desktop\\" + textName + ".txt");
         PrintStream ps = new PrintStream(new FileOutputStream(file));
         FileOutputStream fos = new FileOutputStream(file);
         OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");
@@ -186,19 +197,12 @@ public class SendEmailUtils {
         log.append("\n");
         log.append("发送总量：" + toList.size());
         log.append("\n");
-        log.append("不能用的邮箱："+failEmail);
+        log.append("不能用的邮箱：" + failEmail);
         log.append("\n");
-        log.append("接收失败的客户邮箱："+failTos);
-        System.out.println("开始时间：" + DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
-        System.out.println("结束时间：" + DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
-        System.out.println("成功条数：" + success);
-        System.out.println("失败条数：" + fail);
-        System.out.println("发送总量：" + toList.size());
-        ps.println(new String(log.toString().getBytes(), "utf-8"));
-        osw.write(log.toString());
-        osw.flush();
-        osw.close();
-
+        log.append("能用的邮箱：" + successEmail);
+        log.append("\n");
+        log.append("接收失败的客户邮箱：" + failTos);
+        fromListUtils.outFileLog(DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), toList.size(), success, failEmail, successEmail, failTos);
 
     }
 
