@@ -30,6 +30,7 @@ public class SendEmailUtils {
     public static List<String> failEmail = new LinkedList<>();//发送邮箱异常
     public static Set<FromVo> successEmail = new HashSet<>();//发送邮箱正常的邮箱
     public static List<String> failTos = new LinkedList<>();//接收失败的邮箱
+    public static int group=0;
 
 
     private static Map<String, String> hostMap = new HashMap<String, String>();
@@ -121,12 +122,9 @@ public class SendEmailUtils {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-       /* for (int i = 0; i < 1000; i++) {
-            System.out.println(i);
-            new SendEmailTask("1006351406@qq.com", new FromVo("1536734676@qq.com", "1536734676@qq.com", "gblvkgaaouoahhbe", 21), "天天好看", "sdfdsf").run();
-            new SendEmailTask("1006351406@qq.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "天天好看", "sdfdsf").run();
-            Thread.sleep(3000);
-        }*/
+
+        //new SendEmailTask("", new FromVo("1536734676@qq.com", "1536734676@qq.com", "gblvkgaaouoahhbe", 21), "天天好看", "sdfdsf",1).run();
+
 
 
         duTask();
@@ -137,7 +135,10 @@ public class SendEmailUtils {
     public static void duTask() throws IOException, InterruptedException {
         Date start = new Date();
         String htmlText;
-        htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add.html", null);
+        Map m = new HashMap();
+        m.put("name","sdddd");
+        m.put("rtn","sdf");
+        htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add.html", m);
         FromListUtils fromListUtils = new FromListUtils();
         FileInputStream fileInputStream0 = new FileInputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\froms.xlsx"));
         List<FromVo> fromList = fromListUtils.getList(fileInputStream0);
@@ -148,10 +149,18 @@ public class SendEmailUtils {
         int fromIndex =0;
         ExecutorService executorService = Executors.newSingleThreadExecutor();//创建同发件箱数量同等数量任务
         for (int i = 0; i < toList.size(); i++) {
-            if (i != 0 && i % size == 0 ||  fromIndex == size) {
+           if (i != 0 && i % size == 0) {
+               System.out.println("每个邮箱已经发了一遍...等待执行完毕再发起新的任务......");
+                while (true){
+                    Thread.sleep(5000);
+                    System.out.println("等待前置任务完成...ing,i="+i);
+                    if(group==i-1){
+                        System.out.println("前置任务执行完毕！！！！！！！！！！！！");
+                        break;
+                    }
 
-                System.out.println("每个邮箱已经发了一遍...等待1分钟后......");
-                Thread.sleep(60000);
+                }
+                fromIndex=0;
             }
             String s = toList.get(i);
             FromVo fromVo;
@@ -174,7 +183,7 @@ public class SendEmailUtils {
                 }
             }
 
-            executorService.execute(new SendEmailTask(s, fromVo, "小威律政测试请忽略！" + i, htmlText));
+            executorService.execute(new SendEmailTask2(s, fromVo, "小威律政测试请忽略！" , htmlText,i));
         }
         executorService.shutdown();
         while (true) {

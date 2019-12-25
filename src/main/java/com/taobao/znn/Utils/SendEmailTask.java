@@ -23,12 +23,14 @@ public class SendEmailTask implements Runnable {
     private String subject;
     private String htmlText;
     private static Object lock =new Object();
+    private int baseGroup;
 
-    public SendEmailTask(String to, SendEmailUtils.FromVo fromVo, String subject, String htmlText) {
+    public SendEmailTask(String to, SendEmailUtils.FromVo fromVo, String subject, String htmlText,int group) {
         this.to = to;
         this.fromVo = fromVo;
         this.subject = subject;
         this.htmlText = htmlText;
+        this.baseGroup = group;
     }
 
     @Override
@@ -46,13 +48,14 @@ public class SendEmailTask implements Runnable {
             hemail.setSubject(subject);
 
             hemail.setMsg(htmlText);
-            System.out.println(fromVo.getFrom() + "发送中！");
+            System.out.println(fromVo.getFrom() + "发送中！,to="+to);
             hemail.send();
             synchronized (lock) {
                 SendEmailUtils.success = SendEmailUtils.success + 1;
                 successEmail.add(fromVo);
             }
-            System.out.println(fromVo.getFrom() + "发送成功！");
+            System.out.println(fromVo.getFrom() + "发送成功！to ="+to+",group="+baseGroup);
+
             Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,7 +68,7 @@ public class SendEmailTask implements Runnable {
 
         }
 
-
+        group=baseGroup;
       /*  success++;
         System.out.println(subject);*/
     }
