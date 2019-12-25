@@ -3,14 +3,7 @@ package com.taobao.znn.Utils;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.HtmlEmail;
 
-import javax.mail.Session;
-import javax.swing.plaf.synth.SynthOptionPaneUI;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.locks.Lock;
-
-import static com.taobao.znn.Utils.SendEmailUtils.*;
+import static com.taobao.znn.Utils.SendEmailMain.*;
 
 /**
  * @ClassName SendEmailTask
@@ -19,13 +12,13 @@ import static com.taobao.znn.Utils.SendEmailUtils.*;
  **/
 public class SendEmailTask implements Runnable {
     private String to;
-    private SendEmailUtils.FromVo fromVo;
+    private SendEmailMain.FromVo fromVo;
     private String subject;
     private String htmlText;
     private static Object lock =new Object();
     private int baseGroup;
 
-    public SendEmailTask(String to, SendEmailUtils.FromVo fromVo, String subject, String htmlText,int group) {
+    public SendEmailTask(String to, SendEmailMain.FromVo fromVo, String subject, String htmlText, int group) {
         this.to = to;
         this.fromVo = fromVo;
         this.subject = subject;
@@ -39,19 +32,19 @@ public class SendEmailTask implements Runnable {
 
         try {
             HtmlEmail hemail = new HtmlEmail();
-            hemail.setHostName(SendEmailUtils.getHost(fromVo.from));
-            hemail.setSmtpPort(SendEmailUtils.getSmtpPort(fromVo.from));
+            hemail.setHostName(SendEmailMain.getHost(fromVo.from));
+            hemail.setSmtpPort(SendEmailMain.getSmtpPort(fromVo.from));
             hemail.setAuthenticator(new DefaultAuthenticator(fromVo.username, fromVo.password));
-            hemail.setCharset(SendEmailUtils.charSet);
+            hemail.setCharset(SendEmailMain.charSet);
             hemail.addTo(to);//批量放松
-            hemail.setFrom(fromVo.from, SendEmailUtils.fromName);
+            hemail.setFrom(fromVo.from, SendEmailMain.fromName);
             hemail.setSubject(subject);
 
             hemail.setMsg(htmlText);
             System.out.println(fromVo.getFrom() + "发送中！,to="+to);
             hemail.send();
             synchronized (lock) {
-                SendEmailUtils.success = SendEmailUtils.success + 1;
+                SendEmailMain.success = SendEmailMain.success + 1;
                 successEmail.add(fromVo);
             }
             System.out.println(fromVo.getFrom() + "发送成功！to ="+to+",group="+baseGroup);
@@ -63,7 +56,7 @@ public class SendEmailTask implements Runnable {
             synchronized (lock) {
                 failTos.add(to);
                 failEmail.add(fromVo.getFrom());
-                SendEmailUtils.fail = SendEmailUtils.fail + 1;
+                SendEmailMain.fail = SendEmailMain.fail + 1;
             }
 
         }

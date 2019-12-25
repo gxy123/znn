@@ -1,16 +1,12 @@
 package com.taobao.znn.Utils;
 
-import org.apache.commons.mail.DefaultAuthenticator;
-import org.apache.commons.mail.HtmlEmail;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
 import javax.mail.internet.MimeMessage;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
-import static com.taobao.znn.Utils.SendEmailUtils.*;
+import static com.taobao.znn.Utils.SendEmailMain.*;
 
 /**
  * @ClassName SendEmailTask
@@ -42,11 +38,11 @@ public class SendEmailTask2 implements Runnable {
 
             javaMailSender.setUsername(fromVo.username);
             javaMailSender.setPassword(fromVo.password);
-            javaMailSender.setHost(SendEmailUtils.getHost(fromVo.from));
-            javaMailSender.setPort(SendEmailUtils.getSmtpPort(fromVo.from));
+            javaMailSender.setHost(SendEmailMain.getHost(fromVo.from));
+            javaMailSender.setPort(SendEmailMain.getSmtpPort(fromVo.from));
             javaMailSender.setDefaultEncoding("UTF-8");
             Properties props = new Properties();
-            props.setProperty("mail.smtp.host", SendEmailUtils.getHost(fromVo.from));
+            props.setProperty("mail.smtp.host", SendEmailMain.getHost(fromVo.from));
             props.setProperty("mail.transport.protocol", "smtp");
             props.setProperty("mail.smtp.auth", "true");
             props.setProperty("mail.smtp.connectiontimeout", "20000");
@@ -64,7 +60,7 @@ public class SendEmailTask2 implements Runnable {
             javaMailSender.send(message);
 
             synchronized (lock) {
-                SendEmailUtils.success = SendEmailUtils.success + 1;
+                SendEmailMain.success = SendEmailMain.success + 1;
                 successEmail.add(fromVo);
             }
             System.out.println(fromVo.getFrom() + "发送成功！to ="+to+",group="+baseGroup);
@@ -76,7 +72,7 @@ public class SendEmailTask2 implements Runnable {
             synchronized (lock) {
                 failTos.add(to);
                 failEmail.add(fromVo.getFrom());
-                SendEmailUtils.fail = SendEmailUtils.fail + 1;
+                SendEmailMain.fail = SendEmailMain.fail + 1;
             }
 
         }

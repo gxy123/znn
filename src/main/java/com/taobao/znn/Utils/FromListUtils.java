@@ -21,8 +21,8 @@ public class FromListUtils {
      * @return
      * @throws IOException
      */
-   public  List<SendEmailUtils.FromVo> getList( FileInputStream fileInputStream) throws IOException {
-       List<SendEmailUtils.FromVo> list =new ArrayList<>();
+   public  List<SendEmailMain.FromVo> getList(FileInputStream fileInputStream) throws IOException {
+       List<SendEmailMain.FromVo> list =new ArrayList<>();
        Workbook workbook = new XSSFWorkbook(fileInputStream);
 
        Sheet sheet = workbook.getSheetAt(0);
@@ -33,7 +33,7 @@ public class FromListUtils {
            Cell cell = row.getCell(3);
            cell.setCellType(CellType.STRING);
            Integer count = Integer.valueOf(row.getCell(3).getStringCellValue());
-            list.add(new SendEmailUtils.FromVo(name,name,pass,count));
+            list.add(new SendEmailMain.FromVo(name,name,pass,count));
        }
        return  list;
    }
@@ -56,7 +56,7 @@ public class FromListUtils {
         return  list;
     }
 
-    public  List<String> outFileLog(String start, String end, Integer countAll, Integer success, List<String> failEmail, Set< SendEmailUtils.FromVo> successEmail, List<String> failTos) throws IOException {
+    public  List<String> outFileLog(String start, String end, Integer countAll, Integer success, List<String> failEmail, Set< SendEmailMain.FromVo> successEmail, List<String> failTos) throws IOException {
         List<String> list =new ArrayList<>();
         FileOutputStream out =new FileOutputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\log\\new_log_"+System.currentTimeMillis()+".xlsx"));
         Workbook workbook =new XSSFWorkbook();
@@ -101,10 +101,10 @@ public class FromListUtils {
         Cell cell11 = row2.createCell(2);
         cell11.setCellValue("授权码");
 
-        Iterator<SendEmailUtils.FromVo> iterator = successEmail.iterator();
+        Iterator<SendEmailMain.FromVo> iterator = successEmail.iterator();
         int s =1;
         while (iterator.hasNext()){
-            SendEmailUtils.FromVo next = iterator.next();
+            SendEmailMain.FromVo next = iterator.next();
             Row row = sheet2.createRow(s);
             Cell cell2 = row.createCell(0);
             cell2.setCellValue(next.getFrom());

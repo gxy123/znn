@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  **/
 @Component
 @Data
-public class SendEmailUtils {
+public class SendEmailMain {
 
     public static final String charSet = "utf-8";
     public static final String fromName = "hhda";
@@ -122,12 +122,16 @@ public class SendEmailUtils {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
+        Map m = new HashMap();
+        m.put("name","sdddd");
+        m.put("rtn","sdf");
+        String  htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add2.html", m);
+       // new SendEmailTask("17663492290@163.com", new FromVo("1536734676@qq.com", "1536734676@qq.com", "gblvkgaaouoahhbe", 21), "天天好看", htmlText,1).run();
+        new SendEmailTask2("ggg_xiaoyu@163.com", new FromVo("1536734676@qq.com", "1536734676@qq.com", "gblvkgaaouoahhbe", 21), "天天好看", htmlText,1).run();
 
-        //new SendEmailTask("", new FromVo("1536734676@qq.com", "1536734676@qq.com", "gblvkgaaouoahhbe", 21), "天天好看", "sdfdsf",1).run();
 
 
-
-        duTask();
+        //duTask();
 
 
     }
