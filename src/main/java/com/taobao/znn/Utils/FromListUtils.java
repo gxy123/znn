@@ -50,7 +50,7 @@ public class FromListUtils {
         Sheet sheet = workbook.getSheetAt(0);
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
-            String to = row.getCell(0).getStringCellValue();
+            String to = row.getCell(1).getStringCellValue();
             list.add(to);
         }
         return  list;
@@ -58,7 +58,7 @@ public class FromListUtils {
 
     public  List<String> outFileLog(String start, String end, Integer countAll, Integer success, List<String> failEmail, Set< SendEmailUtils.FromVo> successEmail, List<String> failTos) throws IOException {
         List<String> list =new ArrayList<>();
-        FileOutputStream out =new FileOutputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\new_log_"+System.currentTimeMillis()+".xlsx"));
+        FileOutputStream out =new FileOutputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\log\\new_log_"+System.currentTimeMillis()+".xlsx"));
         Workbook workbook =new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("总结");
 

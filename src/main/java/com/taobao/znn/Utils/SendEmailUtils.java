@@ -121,7 +121,13 @@ public class SendEmailUtils {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        //new SendEmailTask("1006351406@qq.com", new FromVo("wendeyan3670036@163.com", "wendeyan3670036@163.com", "lb4nhckv", 21), "天天好看", "sdfdsf").run();
+       /* for (int i = 0; i < 1000; i++) {
+            System.out.println(i);
+            new SendEmailTask("1006351406@qq.com", new FromVo("1536734676@qq.com", "1536734676@qq.com", "gblvkgaaouoahhbe", 21), "天天好看", "sdfdsf").run();
+            new SendEmailTask("1006351406@qq.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "天天好看", "sdfdsf").run();
+            Thread.sleep(3000);
+        }*/
+
 
         duTask();
 
@@ -129,7 +135,6 @@ public class SendEmailUtils {
     }
 
     public static void duTask() throws IOException, InterruptedException {
-        StringBuffer log = new StringBuffer();
         Date start = new Date();
         String htmlText;
         htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add.html", null);
@@ -140,37 +145,36 @@ public class SendEmailUtils {
         List<String> toList = fromListUtils.getToList(fileInputStream1);
         Map<Integer, Integer> maxMap = new HashMap<>();
         int size = fromList.size();
-        int fromIndex = size;
+        int fromIndex =0;
         ExecutorService executorService = Executors.newSingleThreadExecutor();//创建同发件箱数量同等数量任务
         for (int i = 0; i < toList.size(); i++) {
-            if (i != 0 && i % size == 0 || fromIndex == 0) {
-                fromIndex = size;
+            if (i != 0 && i % size == 0 ||  fromIndex == size) {
+
                 System.out.println("每个邮箱已经发了一遍...等待1分钟后......");
                 Thread.sleep(60000);
             }
             String s = toList.get(i);
-           // FromVo fromVo =new FromVo("xiaoweilvzheng70@tom.com", "xiaoweilvzheng70@tom.com", "xiaowei2019", 100);
             FromVo fromVo;
            while (true) {
-                fromVo = fromList.get(fromIndex - 1);
+                fromVo = fromList.get(fromIndex);
                 if (maxMap.get(fromIndex) != null) {
                     Integer count = maxMap.get(fromIndex);
                     if (fromVo.getMaxCount() <= count) {
-                        fromIndex--;
+                        fromIndex++;
 
                     } else {
                         maxMap.put(fromIndex, count + 1);
-                        fromIndex--;
+                        fromIndex++;
                         break;
                     }
                 } else {
                     maxMap.put(fromIndex, 1);
-                    fromIndex--;
+                    fromIndex++;
                     break;
                 }
             }
 
-            executorService.execute(new SendEmailTask(s, fromVo, "主题" + i, htmlText));
+            executorService.execute(new SendEmailTask(s, fromVo, "小威律政测试请忽略！" + i, htmlText));
         }
         executorService.shutdown();
         while (true) {
@@ -181,27 +185,8 @@ public class SendEmailUtils {
             Thread.sleep(2000);
 
         }
-       // String textName = System.currentTimeMillis() + "";
-        //File file = new File("C:\\Users\\guoxiaoyu\\Desktop\\" + textName + ".txt");
-     /*   PrintStream ps = new PrintStream(new FileOutputStream(file));
-        FileOutputStream fos = new FileOutputStream(file);
-        OutputStreamWriter osw = new OutputStreamWriter(fos, "UTF-8");*/
         Date end = new Date();
-     /*   log.append("开始时间：" + DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
-        log.append("\n");
-        log.append("结束时间：" + DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH));
-        log.append("\n");
-        log.append("成功条数：" + success);
-        log.append("\n");
-        log.append("失败条数：" + fail);
-        log.append("\n");
-        log.append("发送总量：" + toList.size());
-        log.append("\n");
-        log.append("不能用的邮箱：" + failEmail);
-        log.append("\n");
-        log.append("能用的邮箱：" + successEmail);
-        log.append("\n");
-        log.append("接收失败的客户邮箱：" + failTos);*/
+
         fromListUtils.outFileLog(DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), toList.size(), success, failEmail, successEmail, failTos);
         System.out.println(success);
     }
