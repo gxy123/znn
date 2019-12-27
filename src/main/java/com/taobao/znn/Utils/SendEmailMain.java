@@ -25,11 +25,13 @@ public class SendEmailMain {
 
     public static final String charSet = "utf-8";
     public static final String fromName = "hhda";
+    private static Map<String, String> hostMap = new HashMap<String, String>();
     public static Integer success = 0;
     public static Integer fail = 0;
     public static List<String> failEmail = new LinkedList<>();//发送邮箱异常
     public static Set<FromVo> successEmail = new HashSet<>();//发送邮箱正常的邮箱
     public static List<String> failTos = new LinkedList<>();//接收失败的邮箱
+
     public static int group = 0;
     static List<FromVo> fromList0 = new ArrayList<>();//sina
     static List<FromVo> fromList1 = new ArrayList<>();//163
@@ -43,21 +45,15 @@ public class SendEmailMain {
     static int size4 = 0;
     public static int size = 0;
 
-
-    private static Map<String, String> hostMap = new HashMap<String, String>();
-
-
     static {
-
         // 126
         hostMap.put("smtp.126", "smtp.126.com");
         hostMap.put("smtp.163", "smtp.163.com");
         hostMap.put("smtp.qq", "smtp.qq.com");
         hostMap.put("smtp.sina", "smtp.sina.com");
         hostMap.put("smtp.tom", "smtp.tom.com");
-
-
     }
+
 
     public static String getHost(String email) throws Exception {
         Pattern pattern = Pattern.compile("\\w+@(\\w+)(\\.\\w+){1,2}");
@@ -129,12 +125,12 @@ public class SendEmailMain {
         String from;
         String username;//邮箱账号
         String password;//授权码
-        Integer maxCount;//每天最大发送条数
+        Integer maxCount;//每天最大发送条数（没用上）
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
         Map m = new HashMap();
-       m.put("name", "sdddd");
+        m.put("name", "sdddd");
         m.put("rtn", "sdf");
         String htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add.html", m);
         //new SendEmailTask2("17663492290@163.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "恭喜秦雨谈恋爱了！！！", htmlText,1).run();
@@ -142,7 +138,7 @@ public class SendEmailMain {
         new SendEmailTask2("ggg_xiaoyu@163.com", new FromVo("xiaoweilvzheng1@tom.com", "xiaoweilvzheng1@tom.com", "xiaowei2019", 21), "电商人，需要注意啦！新电商法来啦！", htmlText).run();
 
 
-         //duTask();
+        //duTask();
 
 
     }
@@ -164,24 +160,6 @@ public class SendEmailMain {
         for (int i = 0; i < toList.size(); i++) {
             String s = toList.get(i);
             FromVo fromVo = getPolling();
-          /* while (true) {
-                fromVo = fromList.get(fromIndex);
-                if (maxMap.get(fromIndex) != null) {
-                    Integer count = maxMap.get(fromIndex);
-                    if (fromVo.getMaxCount() <= count) {
-                        fromIndex++;
-
-                    } else {
-                        maxMap.put(fromIndex, count + 1);
-                        fromIndex++;
-                        break;
-                    }
-                } else {
-                    maxMap.put(fromIndex, 1);
-                    fromIndex++;
-                    break;
-                }
-            }*/
             executorService.execute(new SendEmailTask2(s, fromVo, "电商人，需要注意啦！新电商法来啦！", htmlText));//
             if (size == 5) {
                 System.out.println("每类邮箱已经发了一遍...等待执行完毕再发起新的任务......");
@@ -232,6 +210,11 @@ public class SendEmailMain {
 
     }
 
+    /**
+     * 双重轮询
+     *
+     * @return
+     */
     public static FromVo getPolling() {
 
         FromVo fromVo = null;
@@ -260,7 +243,7 @@ public class SendEmailMain {
                         size1 = 0;
                     }
                     fromVo = fromList1.get(size1);
-                    size1 ++;
+                    size1++;
                     break;
                 case 2:
                     if (fromList1.size() == 0) {
@@ -271,7 +254,7 @@ public class SendEmailMain {
                         size1 = 0;
                     }
                     fromVo = fromList1.get(size1);
-                    size1 ++;
+                    size1++;
                     break;
                 case 3:
                     if (fromList3.size() == 0) {
@@ -282,7 +265,7 @@ public class SendEmailMain {
                         size3 = 0;
                     }
                     fromVo = fromList3.get(size3);
-                    size3 ++;
+                    size3++;
                     break;
                 case 4:
                     if (fromList4.size() == 0) {
