@@ -19,14 +19,14 @@ public class SendEmailTask2 implements Runnable {
     private String subject;
     private String htmlText;
     private static Object lock =new Object();
-    private int baseGroup;
 
-    public SendEmailTask2(String to, FromVo fromVo, String subject, String htmlText, int group) {
+
+    public SendEmailTask2(String to, FromVo fromVo, String subject, String htmlText) {
         this.to = to;
         this.fromVo = fromVo;
         this.subject = subject;
         this.htmlText = htmlText;
-        this.baseGroup = group;
+
     }
 
     @Override
@@ -49,8 +49,10 @@ public class SendEmailTask2 implements Runnable {
             props.setProperty("mail.smtp.timeout", "20000");
             javaMailSender.setJavaMailProperties(props);
 
+
             MimeMessage message = javaMailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+           // message.addHeader("X-Mailer","Microsoft Outlook Express 6.00.2900.2869");
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
             helper.setTo(to);
             helper.setFrom(fromVo.from);
             helper.setSubject(subject);
@@ -63,21 +65,22 @@ public class SendEmailTask2 implements Runnable {
                 SendEmailMain.success = SendEmailMain.success + 1;
                 successEmail.add(fromVo);
             }
-            System.out.println(fromVo.getFrom() + "发送成功！to ="+to+",group="+baseGroup);
+            System.out.println(fromVo.getFrom() + "发送成功！to ="+to);
 
             Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(fromVo.getFrom() + "发送失败！");
-            synchronized (lock) {
+           synchronized (lock) {
                 failTos.add(to);
                 failEmail.add(fromVo.getFrom());
                 SendEmailMain.fail = SendEmailMain.fail + 1;
             }
 
         }
-
-        group=baseGroup;
+        synchronized (lock) {
+            group ++;
+        }
       /*  success++;
         System.out.println(subject);*/
     }

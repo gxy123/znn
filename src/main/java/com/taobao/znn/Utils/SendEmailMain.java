@@ -30,7 +30,18 @@ public class SendEmailMain {
     public static List<String> failEmail = new LinkedList<>();//发送邮箱异常
     public static Set<FromVo> successEmail = new HashSet<>();//发送邮箱正常的邮箱
     public static List<String> failTos = new LinkedList<>();//接收失败的邮箱
-    public static int group=0;
+    public static int group = 0;
+    static List<FromVo> fromList0 = new ArrayList<>();//sina
+    static List<FromVo> fromList1 = new ArrayList<>();//163
+    static List<FromVo> fromList2 = new ArrayList<>();//126
+    static List<FromVo> fromList3 = new ArrayList<>();//qq
+    static List<FromVo> fromList4 = new ArrayList<>();//tom
+    static int size0 = 0;
+    static int size1 = 0;
+    static int size2 = 0;
+    static int size3 = 0;
+    static int size4 = 0;
+    public static int size = 0;
 
 
     private static Map<String, String> hostMap = new HashMap<String, String>();
@@ -123,15 +134,15 @@ public class SendEmailMain {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Map m = new HashMap();
-        m.put("name","sdddd");
-        m.put("rtn","sdf");
-        String  htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add2.html", m);
-       // new SendEmailTask("17663492290@163.com", new FromVo("1536734676@qq.com", "1536734676@qq.com", "gblvkgaaouoahhbe", 21), "天天好看", htmlText,1).run();
-        new SendEmailTask2("ggg_xiaoyu@163.com", new FromVo("1536734676@qq.com", "1536734676@qq.com", "gblvkgaaouoahhbe", 21), "天天好看", htmlText,1).run();
+       m.put("name", "sdddd");
+        m.put("rtn", "sdf");
+        String htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add.html", m);
+        //new SendEmailTask2("17663492290@163.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "恭喜秦雨谈恋爱了！！！", htmlText,1).run();
+        // new SendEmailTask2("anne_xiaoxia@163.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "电商人，需要注意啦！", htmlText).run();
+        new SendEmailTask2("ggg_xiaoyu@163.com", new FromVo("xiaoweilvzheng1@tom.com", "xiaoweilvzheng1@tom.com", "xiaowei2019", 21), "电商人，需要注意啦！新电商法来啦！", htmlText).run();
 
 
-
-        //duTask();
+         //duTask();
 
 
     }
@@ -140,35 +151,20 @@ public class SendEmailMain {
         Date start = new Date();
         String htmlText;
         Map m = new HashMap();
-        m.put("name","sdddd");
-        m.put("rtn","sdf");
+        m.put("name", "sdddd");
+        m.put("rtn", "sdf");
         htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add.html", m);
         FromListUtils fromListUtils = new FromListUtils();
         FileInputStream fileInputStream0 = new FileInputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\froms.xlsx"));
         List<FromVo> fromList = fromListUtils.getList(fileInputStream0);
+        setFrom(fromList);
         FileInputStream fileInputStream1 = new FileInputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\tos.xlsx"));
         List<String> toList = fromListUtils.getToList(fileInputStream1);
-        Map<Integer, Integer> maxMap = new HashMap<>();
-        int size = fromList.size();
-        int fromIndex =0;
-        ExecutorService executorService = Executors.newSingleThreadExecutor();//创建同发件箱数量同等数量任务
+        ExecutorService executorService = Executors.newFixedThreadPool(5);//创建同发件箱数量同等数量任务
         for (int i = 0; i < toList.size(); i++) {
-           if (i != 0 && i % size == 0) {
-               System.out.println("每个邮箱已经发了一遍...等待执行完毕再发起新的任务......");
-                while (true){
-                    Thread.sleep(5000);
-                    System.out.println("等待前置任务完成...ing,i="+i);
-                    if(group==i-1){
-                        System.out.println("前置任务执行完毕！！！！！！！！！！！！");
-                        break;
-                    }
-
-                }
-                fromIndex=0;
-            }
             String s = toList.get(i);
-            FromVo fromVo;
-           while (true) {
+            FromVo fromVo = getPolling();
+          /* while (true) {
                 fromVo = fromList.get(fromIndex);
                 if (maxMap.get(fromIndex) != null) {
                     Integer count = maxMap.get(fromIndex);
@@ -185,9 +181,22 @@ public class SendEmailMain {
                     fromIndex++;
                     break;
                 }
-            }
+            }*/
+            executorService.execute(new SendEmailTask2(s, fromVo, "电商人，需要注意啦！新电商法来啦！", htmlText));//
+            if (size == 5) {
+                System.out.println("每类邮箱已经发了一遍...等待执行完毕再发起新的任务......");
+                while (true) {
+                    Thread.sleep(2000);
+                    System.out.println("检测前置任务是否完成...ing,group=" + group);
+                    if (group == 5) {
+                        group = 0;
+                        System.out.println("前置任务执行完毕！！！！！！！！！！！！");
+                        break;
+                    }
 
-            executorService.execute(new SendEmailTask2(s, fromVo, "小威律政测试请忽略！" , htmlText,i));
+                }
+                Thread.sleep(10000);
+            }
         }
         executorService.shutdown();
         while (true) {
@@ -202,6 +211,97 @@ public class SendEmailMain {
 
         fromListUtils.outFileLog(DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), toList.size(), success, failEmail, successEmail, failTos);
         System.out.println(success);
+    }
+
+    public static void setFrom(List<FromVo> fromList) {
+
+        fromList.forEach(FromVo -> {
+            if (FromVo.from.contains("@sina")) {
+                fromList0.add(FromVo);
+            } else if (FromVo.from.contains("@163")) {
+                fromList1.add(FromVo);
+            } else if (FromVo.from.contains("@126")) {
+                fromList2.add(FromVo);
+            } else if (FromVo.from.contains("@qq")) {
+                fromList3.add(FromVo);
+            } else if (FromVo.from.contains("@tom")) {
+                fromList4.add(FromVo);
+            }
+        });
+
+
+    }
+
+    public static FromVo getPolling() {
+
+        FromVo fromVo = null;
+        while (fromVo == null) {
+            if (size > 4) {
+                size = 0;
+            }
+            switch (size) {
+                case 0:
+                    if (fromList0.size() == 0) {
+                        size++;
+                        return null;
+                    }
+                    if (size0 == fromList0.size()) {
+                        size0 = 0;
+                    }
+                    fromVo = fromList0.get(size0);
+                    size0++;
+                    break;
+                case 1:
+                    if (fromList1.size() == 0) {
+                        size++;
+                        return null;
+                    }
+                    if (size1 == fromList1.size()) {
+                        size1 = 0;
+                    }
+                    fromVo = fromList1.get(size1);
+                    size1 ++;
+                    break;
+                case 2:
+                    if (fromList1.size() == 0) {
+                        size++;
+                        return null;
+                    }
+                    if (size1 == fromList1.size()) {
+                        size1 = 0;
+                    }
+                    fromVo = fromList1.get(size1);
+                    size1 ++;
+                    break;
+                case 3:
+                    if (fromList3.size() == 0) {
+                        size++;
+                        return null;
+                    }
+                    if (size3 == fromList3.size()) {
+                        size3 = 0;
+                    }
+                    fromVo = fromList3.get(size3);
+                    size3 ++;
+                    break;
+                case 4:
+                    if (fromList4.size() == 0) {
+                        size++;
+                        return null;
+                    }
+                    if (size4 == fromList4.size()) {
+                        size4 = 0;
+                    }
+                    fromVo = fromList4.get(size4);
+                    size4++;
+                    break;
+                default:
+                    break;
+            }
+            size++;
+        }
+        return fromVo;
+
     }
 
 
