@@ -1,9 +1,12 @@
 package com.taobao.znn.Utils;
 
 import com.sun.mail.smtp.SMTPAddressFailedException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import javax.mail.MessagingException;
+import javax.mail.SendFailedException;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
@@ -69,20 +72,43 @@ public class SendEmailTask2 implements Runnable {
             System.out.println(fromVo.getFrom() + "发送成功！to ="+to);
 
             Thread.sleep(3000);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        }catch (MailSendException | InterruptedException e) {
             System.out.println(fromVo.getFrom() + "发送失败！");
-           synchronized (lock) {
+           if(e.getMessage().contains("SMTPAddressFailedException")){
+               System.out.println(to+"不存在！");
+               synchronized (lock) {
+                   nonExistTos.add(to);
+                   SendEmailMain.fail = SendEmailMain.fail + 1;
+               }
+
+           }else{
+               synchronized (lock) {
+                   failTos.add(to);
+                   failEmail.add(fromVo.getFrom());
+                   SendEmailMain.fail = SendEmailMain.fail + 1;
+               }
+
+           }
+
+        } catch (MessagingException e) {
+            System.out.println(fromVo.getFrom() + "发送失败！");
+            synchronized (lock) {
                 failTos.add(to);
                 failEmail.add(fromVo.getFrom());
                 SendEmailMain.fail = SendEmailMain.fail + 1;
             }
-
+        } catch (Exception e) {
+            System.out.println(fromVo.getFrom() + "发送失败！");
+            synchronized (lock) {
+                failTos.add(to);
+                failEmail.add(fromVo.getFrom());
+                SendEmailMain.fail = SendEmailMain.fail + 1;
+            }
         }
         synchronized (lock) {
             group ++;
         }
-      /*  success++;
-        System.out.println(subject);*/
+
     }
 }

@@ -31,6 +31,7 @@ public class SendEmailMain {
     public static List<String> failEmail = new LinkedList<>();//发送邮箱异常
     public static Set<FromVo> successEmail = new HashSet<>();//发送邮箱正常的邮箱
     public static List<String> failTos = new LinkedList<>();//接收失败的邮箱
+    public static List<String> nonExistTos = new LinkedList<>();//不存在的邮箱
 
     public static int group = 0;
     static List<FromVo> fromList0 = new ArrayList<>();//sina
@@ -130,8 +131,8 @@ public class SendEmailMain {
 
     public static void main(String[] args) {
         //new SendEmailTask2("2196388896@qq.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "恭喜秦雨谈恋爱了！！！", htmlText,1).run();
-        // new SendEmailTask2("anne_xiaoxia@163.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "电商人，需要注意啦！", htmlText).run();
-       // new SendEmailTask2("651174762@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "电商人，需要注意啦！新电商法来啦！", "sdf").run();
+       new SendEmailTask2("anne_xiaoxia@163.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "电商人，需要注意啦！", "sdf").run();
+        //new SendEmailTask2("chentuoyu7806@163.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "电商人，需要注意啦！新电商法来啦！", "sdf").run();
       /*
 
       try {
