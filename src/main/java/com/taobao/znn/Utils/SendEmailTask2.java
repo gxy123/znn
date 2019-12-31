@@ -1,5 +1,6 @@
 package com.taobao.znn.Utils;
 
+import com.sun.mail.smtp.SMTPAddressFailedException;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 

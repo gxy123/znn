@@ -3,10 +3,7 @@ package com.taobao.znn.Utils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -48,11 +45,17 @@ public class FromListUtils {
         List<String> list =new ArrayList<>();
         Workbook workbook = new XSSFWorkbook(fileInputStream);
         Sheet sheet = workbook.getSheetAt(0);
+        List<String> exceptions =new ArrayList<>();
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             String to = row.getCell(1).getStringCellValue();
+            if (!to.matches("[\\w\\.\\-]+@([\\w\\-]+\\.)+[\\w\\-]+")) {
+                exceptions.add(to);
+               continue;
+            }
             list.add(to);
         }
+        writeExceptionsLog(exceptions);//输出异常邮箱！
         return  list;
     }
 
@@ -129,5 +132,26 @@ public class FromListUtils {
         out.flush();
         out.close();
         return  list;
+    }
+
+    public void writeExceptionsLog( List<String> list) throws IOException {
+        FileOutputStream out =new FileOutputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\log\\new_log_exceptions_email"+System.currentTimeMillis()+".xlsx"));
+        Workbook workbook =new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("无效邮箱");
+        Row title = sheet.createRow(0);
+        Cell cell0 = title.createCell(0);
+        cell0.setCellValue("邮箱");
+        if(list!=null&&list.size()!=0){
+
+            for (int i = 0; i < list.size(); i++) {
+                String s1 =  list.get(i);
+                Row row = sheet.createRow(i + 1);
+                Cell cell = row.createCell(0);
+                cell.setCellValue(s1);
+            }
+        }
+        workbook.write(out);
+        out.flush();
+        out.close();
     }
 }

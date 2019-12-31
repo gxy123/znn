@@ -129,16 +129,19 @@ public class SendEmailMain {
     }
 
     public static void main(String[] args) {
-        Map m = new HashMap();
-        m.put("name", "sdddd");
-        m.put("rtn", "sdf");
-        String htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "add.html", m);
-        //new SendEmailTask2("17663492290@163.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "恭喜秦雨谈恋爱了！！！", htmlText,1).run();
+        //new SendEmailTask2("2196388896@qq.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "恭喜秦雨谈恋爱了！！！", htmlText,1).run();
         // new SendEmailTask2("anne_xiaoxia@163.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "电商人，需要注意啦！", htmlText).run();
-        new SendEmailTask2("ggg_xiaoyu@163.com", new FromVo("xiaoweilvzheng1@tom.com", "xiaoweilvzheng1@tom.com", "xiaowei2019", 21), "电商人，需要注意啦！新电商法来啦！", htmlText).run();
+       // new SendEmailTask2("651174762@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "电商人，需要注意啦！新电商法来啦！", "sdf").run();
+      /*
 
-
-        //duTask();
+      try {
+            duTask();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+      */
 
 
     }
@@ -157,15 +160,17 @@ public class SendEmailMain {
         FileInputStream fileInputStream1 = new FileInputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\tos.xlsx"));
         List<String> toList = fromListUtils.getToList(fileInputStream1);
         ExecutorService executorService = Executors.newFixedThreadPool(5);//创建同发件箱数量同等数量任务
+        String[] subjects =new String[]{"电商人，需要注意啦！","新电商法来啦！"};
         for (int i = 0; i < toList.size(); i++) {
             String s = toList.get(i);
             FromVo fromVo = getPolling();
-            executorService.execute(new SendEmailTask2(s, fromVo, "电商人，需要注意啦！新电商法来啦！", htmlText));//
+            String subject =subjects[i%2];
+            executorService.execute(new SendEmailTask2(s, fromVo, subject, htmlText));//
             if (size == 5) {
                 System.out.println("每类邮箱已经发了一遍...等待执行完毕再发起新的任务......");
                 while (true) {
                     Thread.sleep(2000);
-                    System.out.println("检测前置任务是否完成...ing,group=" + group);
+                    System.out.println("检测前置任务是否完成...ing,group=" + group+",i="+i);
                     if (group == 5) {
                         group = 0;
                         System.out.println("前置任务执行完毕！！！！！！！！！！！！");
@@ -173,7 +178,7 @@ public class SendEmailMain {
                     }
 
                 }
-                Thread.sleep(10000);
+                Thread.sleep(8000);
             }
         }
         executorService.shutdown();
