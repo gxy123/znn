@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
  * @Author guoxiaoyu
  * @Date 2019/12/1610:08
  **/
+
 @Component
 @Data
 public class SendEmailMain {
