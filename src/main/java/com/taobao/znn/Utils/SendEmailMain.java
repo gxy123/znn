@@ -130,10 +130,14 @@ public class SendEmailMain {
     }
 
     public static void main(String[] args) {
-        //new SendEmailTask2("2196388896@qq.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "恭喜秦雨谈恋爱了！！！", htmlText,1).run();
-       new SendEmailTask2("anne_xiaoxia@163.com", new FromVo("2581977373@qq.com", "2581977373@qq.com", "pzdpcihgslgbdjgi", 21), "电商人，需要注意啦！", "sdf").run();
-        //new SendEmailTask2("chentuoyu7806@163.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "电商人，需要注意啦！新电商法来啦！", "sdf").run();
-      /*
+
+       // String htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "newMail.html", null);
+        //  new SendEmailTask2("17663492290@163.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "恭喜秦雨谈恋爱了！！！", htmlText).run();
+       // new SendEmailTask2("1491598643@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "恭喜秦雨谈恋爱了！！！", htmlText).run();
+        // new SendEmailTask2("2196388896@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "电商人，需要注意啦！", htmlText).run();
+        //new SendEmailTask2("1006351406@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "电商人，需要注意啦！新电商法来啦！", htmlText).run();
+
+
 
       try {
             duTask();
@@ -142,7 +146,7 @@ public class SendEmailMain {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-      */
+
 
 
     }
@@ -161,17 +165,17 @@ public class SendEmailMain {
         FileInputStream fileInputStream1 = new FileInputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\tos.xlsx"));
         List<String> toList = fromListUtils.getToList(fileInputStream1);
         ExecutorService executorService = Executors.newFixedThreadPool(5);//创建同发件箱数量同等数量任务
-        String[] subjects =new String[]{"电商人，需要注意啦！","新电商法来啦！"};
+        String[] subjects = new String[]{"岁末回馈盛典，不容错过", "年终钜惠，不容错过"};
         for (int i = 0; i < toList.size(); i++) {
             String s = toList.get(i);
             FromVo fromVo = getPolling();
-            String subject =subjects[i%2];
+            String subject = subjects[i % 2];
             executorService.execute(new SendEmailTask2(s, fromVo, subject, htmlText));//
             if (size == 5) {
                 System.out.println("每类邮箱已经发了一遍...等待执行完毕再发起新的任务......");
                 while (true) {
                     Thread.sleep(2000);
-                    System.out.println("检测前置任务是否完成...ing,group=" + group+",i="+i);
+                    System.out.println("检测前置任务是否完成...ing,group=" + group + ",i=" + i);
                     if (group == 5) {
                         group = 0;
                         System.out.println("前置任务执行完毕！！！！！！！！！！！！");
@@ -193,7 +197,7 @@ public class SendEmailMain {
         }
         Date end = new Date();
 
-        fromListUtils.outFileLog(DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), toList.size(), success, failEmail, successEmail, failTos);
+        fromListUtils.outFileLog(DateUtils.format(start, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), DateUtils.format(end, "yyyy 年 MM 月 dd 日 E HH 点 mm 分 ss 秒", Locale.ENGLISH), toList.size(), success, failEmail, successEmail, failTos, nonExistTos);
         System.out.println(success);
     }
 

@@ -59,7 +59,7 @@ public class FromListUtils {
         return  list;
     }
 
-    public  List<String> outFileLog(String start, String end, Integer countAll, Integer success, List<String> failEmail, Set< SendEmailMain.FromVo> successEmail, List<String> failTos) throws IOException {
+    public  List<String> outFileLog(String start, String end, Integer countAll, Integer success, List<String> failEmail, Set< SendEmailMain.FromVo> successEmail, List<String> failTos,List<String> nonExistTos ) throws IOException {
         List<String> list =new ArrayList<>();
         FileOutputStream out =new FileOutputStream(new File("C:\\Users\\guoxiaoyu\\Desktop\\log\\new_log_"+System.currentTimeMillis()+".xlsx"));
         Workbook workbook =new XSSFWorkbook();
@@ -128,6 +128,14 @@ public class FromListUtils {
             Cell cell12 = row.createCell(0);
             cell12.setCellValue(failEmail.get(i));
         }
+        Sheet sheet4 = workbook.createSheet("不存在的客户邮箱");
+        for (int i = 0; i < nonExistTos.size(); i++) {
+            String s1 = nonExistTos.get(i);
+            Row row = sheet4.createRow(i);
+            Cell cell12 = row.createCell(0);
+            cell12.setCellValue(s1);
+        }
+
         workbook.write(out);
         out.flush();
         out.close();
