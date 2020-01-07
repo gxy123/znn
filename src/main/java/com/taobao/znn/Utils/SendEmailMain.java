@@ -131,22 +131,20 @@ public class SendEmailMain {
 
     public static void main(String[] args) {
 
-       // String htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "newMail.html", null);
+        // String htmlText = getHtml("C:\\Users\\guoxiaoyu\\Desktop", "newMail.html", null);
         //  new SendEmailTask2("17663492290@163.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "恭喜秦雨谈恋爱了！！！", htmlText).run();
-       // new SendEmailTask2("1491598643@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "恭喜秦雨谈恋爱了！！！", htmlText).run();
+        // new SendEmailTask2("1491598643@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "恭喜秦雨谈恋爱了！！！", htmlText).run();
         // new SendEmailTask2("2196388896@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "电商人，需要注意啦！", htmlText).run();
         //new SendEmailTask2("1006351406@qq.com", new FromVo("xiaoweilvzheng1@163.com", "xiaoweilvzheng1@163.com", "xiaoweilvzheng1", 21), "电商人，需要注意啦！新电商法来啦！", htmlText).run();
 
 
-
-      try {
+        try {
             duTask();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
 
 
     }
@@ -166,24 +164,33 @@ public class SendEmailMain {
         List<String> toList = fromListUtils.getToList(fileInputStream1);
         ExecutorService executorService = Executors.newFixedThreadPool(5);//创建同发件箱数量同等数量任务
         String[] subjects = new String[]{"岁末回馈盛典，不容错过", "年终钜惠，不容错过"};
-        for (int i = 0; i < toList.size(); i++) {
-            String s = toList.get(i);
-            FromVo fromVo = getPolling();
-            String subject = subjects[i % 2];
-            executorService.execute(new SendEmailTask2(s, fromVo, subject, htmlText));//
-            if (size == 5) {
-                System.out.println("每类邮箱已经发了一遍...等待执行完毕再发起新的任务......");
-                while (true) {
-                    Thread.sleep(2000);
-                    System.out.println("检测前置任务是否完成...ing,group=" + group + ",i=" + i);
-                    if (group == 5) {
-                        group = 0;
-                        System.out.println("前置任务执行完毕！！！！！！！！！！！！");
-                        break;
+        failTos = toList;
+        while (true) {
+            if (failTos != null && failTos.size() != 0) {
+                System.out.println("执行剩下失败的条数=" + failTos.size());
+                List<String> toListCopy = failTos;
+                failTos = new ArrayList<>();
+                for (int i = 0; i < toListCopy.size(); i++) {
+                    String s = toListCopy.get(i);
+                    FromVo fromVo = getPolling();
+                    String subject = subjects[i % 2];
+                    executorService.execute(new SendEmailTask2(s, fromVo, subject, htmlText));//
+                    if (size == 5) {
+                        System.out.println("每类邮箱已经发了一遍...等待执行完毕再发起新的任务......");
+                        while (true) {
+                            Thread.sleep(2000);
+                            System.out.println("检测前置任务是否完成...ing,group=" + group + ",i=" + i);
+                            if (group == 5) {
+                                group = 0;
+                                System.out.println("前置任务执行完毕！！！！！！！！！！！！");
+                                break;
+                            }
+                        }
+                        Thread.sleep(8000);
                     }
-
                 }
-                Thread.sleep(8000);
+            } else {
+                break;
             }
         }
         executorService.shutdown();
@@ -193,7 +200,6 @@ public class SendEmailMain {
                 break;
             }
             Thread.sleep(2000);
-
         }
         Date end = new Date();
 
